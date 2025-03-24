@@ -46,7 +46,13 @@
 .calculations{
   height: 50%;
   margin: 5px;
+  background-color: #CE7777;
+  border: 1px solid black;
+  font-size: 22px;
+  align-items: center;
+  top: 50%;
 }
+
 
 .result{
   height: 30%;
