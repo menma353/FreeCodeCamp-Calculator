@@ -11,13 +11,23 @@ function Keys(){
         function HandleClick(operation){
             const input = document.getElementById("display")
             const operands = ['+', '-', '/', '*']
-            
+            const pattern = /([+\-*/])/
+            const digits = /[\d]+/
+
+            input.textContent = input.textContent.trim()
             if(input.textContent[0] === "0"){
                 input.textContent = ''
             }
 
-            let values = input.textContent.split(/(?=[+-/()*^(.)])|(?<=[+-/()*^(.)])/g)
+            let values = input.textContent.split(pattern)
+            let lastNum = values[values.length - 1] || ""
 
+            if(lastNum === ""){
+                values.pop(lastNum)
+            }
+           
+            lastNum = values[values.length - 1] || ""
+            console.log("Before: ", values)
             if(operation === 'bracket'){
                 if(values[0] === "" && values.length === 1){
                     values = []
@@ -27,7 +37,8 @@ function Keys(){
                     setOpen(true)
                     setBracNum(bracNum + 1)
                 }
-                else if(operands.includes(values[values.length - 1]) === false && opened === false) {
+                else if(operands.includes(lastNum) === false && opened === false) {
+                    console.log(lastNum)
                     input.textContent = input.textContent + '*('
                     setOpen(true)
                     setBracNum(bracNum + 1)
@@ -49,8 +60,8 @@ function Keys(){
             }
 
             else if(operation === 'inverse'){
-                if(operands.includes(values[values.length - 1]) === false){
-                    let temp = values[values.length - 1]
+                if(operands.includes(lastNum) === false){
+                    let temp = lastNum
                     values.splice(values.length - 1, 1, "(" , "-", temp)
                     setOpen(true)
                     setBracNum(bracNum + 1)
@@ -60,12 +71,12 @@ function Keys(){
             }
             
             else if (operands.includes(operation)){
-                if(operands.includes(values[values.length - 1])){
-                    if(values[values.length - 1] === '/' && operation === "*"){
-                        values[values.length - 1] =  "*"
+                if(operands.includes(lastNum) ){
+                    if(lastNum === '/' && operation === "*"){
+                        lastNum =  "*"
                     }
-                    else if(values[values.length - 1] === '*' && operation === "/"){
-                        values[values.length - 1] =  "/"
+                    else if(lastNum === '*' && operation === "/"){
+                        lastNum =  "/"
                     }
                     input.textContent = values.join("")
                 }
@@ -76,15 +87,16 @@ function Keys(){
             }
 
             else if(operation === "."){
-                if(operands.includes(values[values.length - 1]) === false && values[values.length - 1].includes('.')){
+                console.log(lastNum)
+                if(lastNum.match(digits) && lastNum.includes('.')){
 
                 }
-                else if(operands.includes(values[values.length - 1]) || values.length === 0){
+                else if(operands.includes(lastNum) || values.length === 0 ){
                     values.push('0.')
                     input.textContent = values.join("")
                 }
                 else{
-                    let temp = values[values.length - 1]
+                    let temp = lastNum
                     console.log("Do this one", temp)
                     values[values.length - 1] = `${temp}.`
                     input.textContent = values.join("")
@@ -92,17 +104,35 @@ function Keys(){
                 
             }
 
+            else if(operation === '%'){
+                if(lastNum.match(digits) && lastNum.includes(operation) === false){
+                    input.textContent = input.textContent + operation
+                }
+            }
+
             else{
                 console.log("0-9")
-                input.textContent = input.textContent + operation
+                if(lastNum.includes('%')){
+                    input.textContent = input.textContent + `*${operation}`
+                }
+                else{
+                    input.textContent = input.textContent + operation
+                }
+                
             }
-            values = input.textContent.split(/(?=[+-/()*^(.)]])|(?<=[+-/()*^(.)])/g)
+
+            values = input.textContent.split(pattern)
+            if(values[values.length - 1] === ""){
+                values.pop(values.length - 1)
+            }
             console.log("The values and input after ",values, input.textContent)
             console.log(opened, bracNum)
         }
         
         console.log(opened, bracNum)
         function clearDisplay(){
+            setOpen(false)
+            setBracNum(0)
             document.getElementById("display").textContent = "0"
         }
 
