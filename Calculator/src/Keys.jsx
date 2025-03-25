@@ -16,7 +16,7 @@ function Keys(){
                 input.textContent = ''
             }
 
-            let values = input.textContent.split(/(?=[+-/()*])|(?<=[+-/()*])/g)
+            let values = input.textContent.split(/(?=[+-/()*^(.)])|(?<=[+-/()*^(.)])/g)
 
             if(operation === 'bracket'){
                 if(values[0] === "" && values.length === 1){
@@ -96,7 +96,7 @@ function Keys(){
                 console.log("0-9")
                 input.textContent = input.textContent + operation
             }
-            values = input.textContent.split(/(?=[+-/()*])|(?<=[+-/()*])/g)
+            values = input.textContent.split(/(?=[+-/()*^(.)]])|(?<=[+-/()*^(.)])/g)
             console.log("The values and input after ",values, input.textContent)
             console.log(opened, bracNum)
         }
