@@ -1,4 +1,7 @@
 import { useState } from "react"
+import { actions} from "./Actions"
+import { useDispatch, useSelector } from "react-redux"
+
 
 
 
@@ -7,7 +10,22 @@ function Keys(){
 
     const [opened, setOpen] = useState(false)
     const [bracNum, setBracNum] = useState(0)
+    const display = useSelector(state => state.calculate)
+    const dispatch = useDispatch()
         
+        function formatEval(value){
+            const newValue = value.map(val =>  {
+                if(val.includes('%')){
+                    val = val.substring(0, val.length - 1);
+                    val = Number((val / 100).toFixed(2))
+                }
+                return val
+            })
+            const evalText = newValue.join('')
+            console.log(evalText)
+            dispatch(actions.calculate(evalText))
+        }
+
         function HandleClick(operation){
             const input = document.getElementById("display")
             const operands = ['+', '-', '/', '*']
@@ -60,7 +78,7 @@ function Keys(){
             }
 
             else if(operation === 'inverse'){
-                if(operands.includes(lastNum) === false){
+                if(operands.includes(lastNum) === false && !opened){
                     let temp = lastNum
                     values.splice(values.length - 1, 1, "(" , "-", temp)
                     setOpen(true)
@@ -115,6 +133,9 @@ function Keys(){
                 if(lastNum.includes('%')){
                     input.textContent = input.textContent + `*${operation}`
                 }
+                else if(lastNum.length === 9){
+
+                }
                 else{
                     input.textContent = input.textContent + operation
                 }
@@ -127,13 +148,22 @@ function Keys(){
             }
             console.log("The values and input after ",values, input.textContent)
             console.log(opened, bracNum)
+            
+            formatEval(values)
+
         }
         
         console.log(opened, bracNum)
         function clearDisplay(){
             setOpen(false)
             setBracNum(0)
-            document.getElementById("display").textContent = "0"
+            document.getElementById("display").textContent = "0";
+            dispatch(actions.clear())
+        }
+
+        function Calculate(){
+            document.getElementById("display").textContent = display;
+            document.querySelector(".result").textContent = "";
         }
 
     return(
@@ -158,7 +188,7 @@ function Keys(){
                 <button class='keys' id='zero' onClick={() => HandleClick("0")}>0</button>
                 <button class='keys' id='decimal' onClick={() => HandleClick(".")}>.</button>
                 <button class='keys operand' id='plus-or-minus' onClick={() => HandleClick("inverse")}>+/-</button>
-                <button class='keys operand' id='equal'>=</button>
+                <button class='keys operand' id='equal' onClick={() => Calculate()}>=</button>
             </div>
         </>
     )
