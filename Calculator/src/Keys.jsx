@@ -4,14 +4,17 @@ import { useDispatch, useSelector } from "react-redux"
 
 
 
-
+let prevValue = ''
 
 function Keys(){
 
     const [opened, setOpen] = useState(false)
     const [bracNum, setBracNum] = useState(0)
     const display = useSelector(state => state.calculate)
+    const [calculated, setCalculated] = useState(false) 
     const dispatch = useDispatch()
+    const operands = ['+', '-', '/', '*']
+    
         
         function formatEval(value){
             const newValue = value.map(val =>  {
@@ -22,18 +25,22 @@ function Keys(){
                 return val
             })
             const evalText = newValue.join('')
-            console.log(evalText)
+            const found = newValue.findLast((element) => operands.includes(element));
+            const index = newValue.indexOf(found)
+            const text = newValue.slice(index).join('');
+            console.log("Text ", text, index, found, newValue);
+            prevValue = text;
+            console.log(evalText, " the prevValue ",prevValue, text)
             dispatch(actions.calculate(evalText))
         }
 
         function HandleClick(operation){
             const input = document.getElementById("display")
-            const operands = ['+', '-', '/', '*']
             const pattern = /([+\-*/])/
             const digits = /[\d]+/
 
             input.textContent = input.textContent.trim()
-            if(input.textContent[0] === "0"){
+            if(input.textContent[0] === "0" && input.textContent.length === 1){
                 input.textContent = ''
             }
 
@@ -153,15 +160,31 @@ function Keys(){
 
         }
         
-        console.log(opened, bracNum)
         function clearDisplay(){
             setOpen(false)
             setBracNum(0)
+            setCalculated(false)
             document.getElementById("display").textContent = "0";
             dispatch(actions.clear())
         }
 
         function Calculate(){
+            console.log(calculated, prevValue)
+            if(calculated){
+                const text = display + prevValue
+                console.log(text)
+                dispatch(actions.calculate(text))
+            }
+            else{
+                setCalculated(true)
+                document.getElementById("display").textContent = display;
+                console.log("This one")
+                document.querySelector(".result").textContent = "";
+            }
+           
+        }
+
+        if(calculated){
             document.getElementById("display").textContent = display;
             document.querySelector(".result").textContent = "";
         }
@@ -188,7 +211,7 @@ function Keys(){
                 <button class='keys' id='zero' onClick={() => HandleClick("0")}>0</button>
                 <button class='keys' id='decimal' onClick={() => HandleClick(".")}>.</button>
                 <button class='keys operand' id='plus-or-minus' onClick={() => HandleClick("inverse")}>+/-</button>
-                <button class='keys operand' id='equal' onClick={() => Calculate()}>=</button>
+                <button class='keys operand' id='equals' onClick={() => Calculate()}>=</button>
             </div>
         </>
     )

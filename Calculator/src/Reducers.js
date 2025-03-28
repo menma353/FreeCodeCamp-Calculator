@@ -5,7 +5,12 @@ const pattern = /([+\-*/])/
 const calculateReducer = (state = 0, action) => {
     switch(action.type){
         case 'CALCULATE':
-            return eval(action.value);
+            try{
+                return eval(action.value)
+            }
+            catch{
+                return " "
+            }
         case 'CLEAR':
             return 0;
         default:
