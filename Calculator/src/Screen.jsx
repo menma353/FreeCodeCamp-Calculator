@@ -9,7 +9,7 @@ function Screen(){
     const dispatch = useDispatch()
 
     function Delete(){
-        const pattern = /([+\-*/])/
+        const pattern = /([+|\*\*|[+\-*/()])/g
         let input = document.getElementById("display")
         if(input.textContent.length > 0){
             input.textContent = input.textContent.substring(0, input.textContent.length - 1);  

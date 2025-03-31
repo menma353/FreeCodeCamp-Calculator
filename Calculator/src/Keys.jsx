@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { actions} from "./Actions"
+import { actions, change} from "./Actions"
 import { useDispatch, useSelector } from "react-redux"
 
 
@@ -24,19 +24,20 @@ function Keys(){
                 }
                 return val
             })
+            
+            console.log("newValue", newValue, opened)
             const evalText = newValue.join('')
-            const found = newValue.findLast((element) => operands.includes(element));
-            const index = newValue.indexOf(found)
-            const text = newValue.slice(index).join('');
-            console.log("Text ", text, index, found, newValue);
+            const Operand = newValue.findLast((element) => operands.includes(element));
+            const index = newValue.indexOf(Operand)
+            const text = newValue.slice(index);
             prevValue = text;
-            console.log(evalText, " the prevValue ",prevValue, text)
             dispatch(actions.calculate(evalText))
         }
 
         function HandleClick(operation){
+            setCalculated(false)
             const input = document.getElementById("display")
-            const pattern = /([+\-*/])/
+            const pattern = /([+|\*\*|[+\-*/()])/g
             const digits = /[\d]+/
 
             input.textContent = input.textContent.trim()
@@ -91,7 +92,17 @@ function Keys(){
                     setOpen(true)
                     setBracNum(bracNum + 1)
                 }
-
+                else if(operands.includes(values[values - 2]) && lastNum.match(digits)){
+                    let temp = lastNum
+                    values.splice(values.length - 1, 1, "(" , "-", temp)
+                    setOpen(true)
+                    setBracNum(bracNum + 1)
+                }
+                else if(operands.includes(lastNum)){
+                    lastNum  = lastNum +  '(-'
+                    setOpen(true)
+                    setBracNum(bracNum + 1)
+                }
                 input.textContent = values.join("")
             }
             
@@ -102,6 +113,9 @@ function Keys(){
                     }
                     else if(lastNum === '*' && operation === "/"){
                         lastNum =  "/"
+                    }
+                    else if(lastNum !== '-' && operation === '-'){
+                        lastNum = lastNum + '-'
                     }
                     input.textContent = values.join("")
                 }
@@ -122,7 +136,6 @@ function Keys(){
                 }
                 else{
                     let temp = lastNum
-                    console.log("Do this one", temp)
                     values[values.length - 1] = `${temp}.`
                     input.textContent = values.join("")
                 }
@@ -136,7 +149,6 @@ function Keys(){
             }
 
             else{
-                console.log("0-9")
                 if(lastNum.includes('%')){
                     input.textContent = input.textContent + `*${operation}`
                 }
@@ -151,11 +163,12 @@ function Keys(){
 
             values = input.textContent.split(pattern)
             if(values[values.length - 1] === ""){
-                values.pop(values.length - 1)
+                values.pop()
             }
-            console.log("The values and input after ",values, input.textContent)
-            console.log(opened, bracNum)
-            
+            if(values[0] === ""){
+                values.shift()
+            }
+            console.log(values)
             formatEval(values)
 
         }
@@ -170,23 +183,25 @@ function Keys(){
 
         function Calculate(){
             console.log(calculated, prevValue)
-            if(calculated){
-                const text = display + prevValue
+            let isOperand = operands.some(operand => prevValue.includes(operand));
+            console.log(isOperand)
+            if(calculated && isOperand){
+                const text = display + prevValue.join('')
                 console.log(text)
-                dispatch(actions.calculate(text))
+                const thisValue = eval(`${text}`)
+                if(thisValue !== ''){
+                     document.getElementById("display").textContent = thisValue;
+                     dispatch(actions.change(thisValue))
+                }
+               
             }
             else{
                 setCalculated(true)
                 document.getElementById("display").textContent = display;
                 console.log("This one")
-                document.querySelector(".result").textContent = "";
             }
-           
-        }
-
-        if(calculated){
-            document.getElementById("display").textContent = display;
             document.querySelector(".result").textContent = "";
+            console.log(display)
         }
 
     return(

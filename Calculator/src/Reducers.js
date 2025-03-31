@@ -13,11 +13,16 @@ const calculateReducer = (state = 0, action) => {
             }
         case 'CLEAR':
             return 0;
+        case 'CHANGE':
+            return action.value
         default:
             return state;
 
     }
 }
+
+
+
 
 const splitReducer = (state='', action) => {
     
