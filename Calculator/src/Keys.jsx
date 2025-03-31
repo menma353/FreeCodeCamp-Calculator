@@ -99,7 +99,8 @@ function Keys(){
                     setBracNum(bracNum + 1)
                 }
                 else if(operands.includes(lastNum)){
-                    lastNum  = lastNum +  '(-'
+                    console.log(lastNum)
+                    values.push('(-')
                     setOpen(true)
                     setBracNum(bracNum + 1)
                 }
